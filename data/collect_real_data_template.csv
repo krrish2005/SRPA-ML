@@ -1,0 +1,1 @@
+distance_m,dx_m,dy_m,tx_power,path_loss_exponent,reference_loss,wall_loss_feature,obstacle_loss_feature,wall_crossings,obstacle_crossings,room_width,room_height,target_x_norm,target_y_norm,router_x_norm,router_y_norm,rssi_dbm

@@ -1,0 +1,260 @@
+{
+  "dataset": {
+    "file": "data/synthetic_wifi_rssi.csv",
+    "source": "Generated locally by train_model.py; RSSI labels produced by the project's original simulation.calculate_rssi physics formula.",
+    "external_dataset": false,
+    "real_wifi_measurements": false,
+    "total_rows": 18000,
+    "features": [
+      "distance_m",
+      "dx_m",
+      "dy_m",
+      "tx_power",
+      "path_loss_exponent",
+      "reference_loss",
+      "wall_loss_feature",
+      "obstacle_loss_feature",
+      "wall_crossings",
+      "obstacle_crossings",
+      "room_width",
+      "room_height",
+      "target_x_norm",
+      "target_y_norm",
+      "router_x_norm",
+      "router_y_norm"
+    ],
+    "target": "rssi_dbm",
+    "random_seed": 42,
+    "split": "train_test_split(test_size=0.20, random_state=42)",
+    "train_rows": 14400,
+    "test_rows": 3600
+  },
+  "regression_comparison": {
+    "purpose": "Predict continuous RSSI in dBm; lower MAE/RMSE and higher R2 are better.",
+    "results": {
+      "Random Forest Regressor": {
+        "MAE_dBm": 1.1697,
+        "RMSE_dBm": 1.887,
+        "R2": 0.98394
+      },
+      "KNN Regressor": {
+        "MAE_dBm": 3.0729,
+        "RMSE_dBm": 4.1062,
+        "R2": 0.92395
+      },
+      "Linear Regression": {
+        "MAE_dBm": 2.7697,
+        "RMSE_dBm": 3.8739,
+        "R2": 0.93231
+      }
+    },
+    "best_model_by_RMSE": "Random Forest Regressor"
+  },
+  "classification_comparison": {
+    "purpose": "Classify RSSI into signal-quality bands; higher accuracy/F1 are better.",
+    "bands": {
+      "Dead Zone": "RSSI < -85 dBm",
+      "Very Weak": "-85 to < -75 dBm",
+      "Weak": "-75 to < -67 dBm",
+      "Fair": "-67 to < -60 dBm",
+      "Good": "-60 to < -50 dBm",
+      "Excellent": "RSSI >= -50 dBm"
+    },
+    "results": {
+      "Random Forest Classifier": {
+        "accuracy_percent": 84.333,
+        "precision_weighted": 0.843,
+        "recall_weighted": 0.8433,
+        "f1_weighted": 0.8422,
+        "class_names": [
+          "Dead Zone",
+          "Very Weak",
+          "Weak",
+          "Fair",
+          "Good",
+          "Excellent"
+        ],
+        "confusion_matrix": [
+          [
+            63,
+            34,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            26,
+            91,
+            47,
+            3,
+            0,
+            0
+          ],
+          [
+            0,
+            23,
+            189,
+            71,
+            1,
+            0
+          ],
+          [
+            0,
+            1,
+            68,
+            323,
+            103,
+            0
+          ],
+          [
+            0,
+            0,
+            1,
+            43,
+            814,
+            60
+          ],
+          [
+            0,
+            0,
+            0,
+            0,
+            83,
+            1556
+          ]
+        ]
+      },
+      "Logistic Regression": {
+        "accuracy_percent": 87.861,
+        "precision_weighted": 0.8821,
+        "recall_weighted": 0.8786,
+        "f1_weighted": 0.8798,
+        "class_names": [
+          "Dead Zone",
+          "Very Weak",
+          "Weak",
+          "Fair",
+          "Good",
+          "Excellent"
+        ],
+        "confusion_matrix": [
+          [
+            88,
+            9,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            10,
+            147,
+            10,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            25,
+            234,
+            25,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            37,
+            428,
+            30,
+            0
+          ],
+          [
+            0,
+            0,
+            3,
+            88,
+            766,
+            61
+          ],
+          [
+            0,
+            0,
+            0,
+            2,
+            137,
+            1500
+          ]
+        ]
+      },
+      "KNN Classifier": {
+        "accuracy_percent": 71.972,
+        "precision_weighted": 0.711,
+        "recall_weighted": 0.7197,
+        "f1_weighted": 0.7129,
+        "class_names": [
+          "Dead Zone",
+          "Very Weak",
+          "Weak",
+          "Fair",
+          "Good",
+          "Excellent"
+        ],
+        "confusion_matrix": [
+          [
+            39,
+            43,
+            13,
+            2,
+            0,
+            0
+          ],
+          [
+            12,
+            58,
+            74,
+            23,
+            0,
+            0
+          ],
+          [
+            0,
+            23,
+            118,
+            120,
+            23,
+            0
+          ],
+          [
+            0,
+            5,
+            53,
+            221,
+            211,
+            5
+          ],
+          [
+            0,
+            0,
+            7,
+            80,
+            637,
+            194
+          ],
+          [
+            0,
+            0,
+            1,
+            2,
+            118,
+            1518
+          ]
+        ]
+      }
+    },
+    "best_model_by_weighted_F1": "Logistic Regression"
+  },
+  "important_limitation": "These results measure agreement with synthetic labels generated by the project's physics simulator. They do not prove real-world Wi-Fi accuracy. For real-world validation, collect measured RSSI readings from actual routers/devices and evaluate on a held-out set of those measurements."
+}

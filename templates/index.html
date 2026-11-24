@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Router Placement Advisor — Commercial Wi-Fi Planning Suite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Global Header -->
+    <header class="app-header">
+        <div class="header-left">
+            <div class="app-brand">
+                <div class="brand-radar">
+                    <span class="radar-beam"></span>
+                    <span class="radar-dot"></span>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title">Smart Router Placement Advisor</div>
+                    <div class="brand-tagline">RF Propagation Simulator & Spatial Optimization Workstation</div>
+                </div>
+            </div>
+            
+            <div class="header-divider"></div>
+
+            <div class="preset-badge" id="currentPresetBadge">
+                <span class="badge-icon">🏠</span>
+                <span id="currentPresetName">2 BHK Family Apartment</span>
+                <span class="badge-dim" id="currentPresetDim">16.0m × 11.0m</span>
+            </div>
+        </div>
+
+        <!-- Global View Navigation Tabs -->
+        <nav class="header-nav" id="globalNav">
+            <button class="view-tab active" data-view="view-studio" id="navStudioBtn">
+                <span class="tab-icon">📐</span>
+                <span class="tab-label">Studio & Canvas</span>
+            </button>
+            <button class="view-tab" data-view="view-overview" id="navOverviewBtn">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Executive Overview</span>
+            </button>
+            <button class="view-tab" data-view="view-analytics" id="navAnalyticsBtn">
+                <span class="tab-icon">📡</span>
+                <span class="tab-label">Signal Analytics</span>
+            </button>
+            <button class="view-tab" data-view="view-optimizer" id="navOptimizerBtn">
+                <span class="tab-icon">⚡</span>
+                <span class="tab-label">Placement Advisor</span>
+            </button>
+            <button class="view-tab" data-view="view-projects" id="navProjectsBtn">
+                <span class="tab-icon">📁</span>
+                <span class="tab-label">Projects & Export</span>
+            </button>
+            <button class="view-tab" data-view="view-docs" id="navDocsBtn">
+                <span class="tab-icon">📚</span>
+                <span class="tab-label">RF Theory</span>
+            </button>
+        </nav>
+
+        <div class="header-right">
+            <!-- Real-time Backend Health Monitor -->
+            <div class="system-status-chip" id="backendHealthChip" title="Flask Backend REST API Health">
+                <span class="status-ping" id="backendPingDot"></span>
+                <span class="status-label" id="backendStatusLabel">Checking API...</span>
+                <span class="status-latency" id="backendLatency">-- ms</span>
+            </div>
+
+            <!-- Simulation State Indicator -->
+            <div class="sim-state-chip" id="simStateChip">
+                <span class="sim-dot" id="simDot"></span>
+                <span id="simStateText">Up to date</span>
+            </div>
+
+            <!-- Header Quick Actions -->
+            <div class="header-btn-group">
+                <button class="hdr-btn" id="btnHeaderReset" title="Reset layout to an open floor plan">
+                    <span class="btn-icon">↺</span>
+                    <span>Reset</span>
+                </button>
+                <button class="hdr-btn" id="btnHeaderOptimize" title="Evaluate and find optimal router coordinates">
+                    <span class="btn-icon">⚡</span>
+                    <span>Optimize AP</span>
+                </button>
+                <button class="hdr-btn hdr-btn-primary" id="btnHeaderSimulate" title="Recalculate RF path-loss simulation">
+                    <span class="btn-icon">▶</span>
+                    <span>Simulate</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main View Container -->
+    <main class="app-body">
+
+        <!-- ===================================================================
+             VIEW 1: FLOOR PLAN STUDIO & CANVAS (PRIMARY WORKSTATION)
+             =================================================================== -->
+        <section class="app-view active" id="view-studio">
+            <div class="studio-layout">
+                
+                <!-- Left Control Dock -->
+                <aside class="studio-sidebar" id="studioSidebar">
+                    <!-- Sidebar Navigation Tabs -->
+                    <div class="dock-tabs">
+                        <button class="dock-tab active" data-dock="dock-presets">Layout</button>
+                        <button class="dock-tab" data-dock="dock-rooms">Rooms</button>
+                        <button class="dock-tab" data-dock="dock-radio">Transmitter</button>
+                        <button class="dock-tab" data-dock="dock-barriers">Barriers</button>
+                    </div>
+
+                    <!-- Dock Panels -->
+                    <div class="dock-content">
+                        
+                        <!-- DOCK 1: LAYOUT & PRESETS -->
+                        <div class="dock-panel active" id="dock-presets">
+                            <div class="panel-card">
+                                <div class="card-title-row">
+                                    <h4>Architectural Presets</h4>
+                                    <span class="status-tag">Templates</span>
+                                </div>
+                                <p class="panel-hint">Load pre-engineered floor plans with real-world wall materials.</p>
+                                
+                                <div class="form-field">
+                                    <label for="selectPreset">Select Layout Preset:</label>
+                                    <select id="selectPreset" class="saas-select">
+                                        <option value="Studio">Studio Compact Apartment (10.0m × 7.5m)</option>
+                                        <option value="1BHK">1 BHK Modern Apartment (12.0m × 9.0m)</option>
+                                        <option value="2BHK" selected>2 BHK Family Apartment (16.0m × 11.0m)</option>
+                                        <option value="3BHK">3 BHK Spacious Residence (20.0m × 14.0m)</option>
+                                        <option value="4BHK">4 BHK Luxury Apartment (24.0m × 16.0m)</option>
+                                        <option value="open_plan">Open Studio / Corporate Office (18.0m × 12.0m)</option>
+                                        <option value="custom">Custom Dimensions (User Defined)</option>
+                                    </select>
+                                </div>
+
+                                <button id="btnLoadPreset" class="btn btn-secondary btn-block">Load Selected Preset</button>
+                            </div>
+
+                            <div class="panel-card">
+                                <div class="card-title-row">
+                                    <h4>Floor Dimensions</h4>
+                                    <span class="status-tag">Scale</span>
+                                </div>
+                                
+                                <div class="form-row-2">
+                                    <div class="form-field">
+                                        <label for="floorWidth">Width (m):</label>
+                                        <input type="number" id="floorWidth" min="4" max="60" step="0.5" value="16.0" class="saas-input">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="floorHeight">Height (m):</label>
+                                        <input type="number" id="floorHeight" min="4" max="40" step="0.5" value="11.0" class="saas-input">
+                                    </div>
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="gridResolution">Simulation Grid Step (m):</label>
+                                    <select id="gridResolution" class="saas-select">
+                                        <option value="0.25">0.25 m (High Precision • Slower)</option>
+                                        <option value="0.5" selected>0.50 m (Standard Balanced)</option>
+                                        <option value="1.0">1.00 m (Draft Fast Simulation)</option>
+                                    </select>
+                                    <span class="input-hint">Smaller grid steps increase accuracy near wall boundaries.</span>
+                                </div>
+
+                                <button id="btnUpdateDimensions" class="btn btn-secondary btn-block">Apply Dimensions & Grid</button>
+                            </div>
+                        </div>
+
+                        <!-- DOCK 2: ROOM ARCHITECTURE -->
+                        <div class="dock-panel" id="dock-rooms">
+                            <div class="panel-card">
+                                <div class="card-title-row">
+                                    <h4>Room Management</h4>
+                                    <button class="btn-text-sm" id="btnToggleAddRoom">+ New Room</button>
+                                </div>
+                                <p class="panel-hint">Define functional spaces to calculate room-level signal performance.</p>
+                                
+                                <!-- Collapsible Room Add Form -->
+                                <div class="add-room-form" id="addRoomForm" style="display: none;">
+                                    <div class="form-field">
+                                        <label for="newRoomName">Room Name:</label>
+                                        <input type="text" id="newRoomName" placeholder="e.g. Master Bedroom, Office" class="saas-input">
+                                    </div>
+                                    <div class="form-row-2">
+                                        <div class="form-field">
+                                            <label for="newRoomW">Width (m):</label>
+                                            <input type="number" id="newRoomW" min="1" max="40" step="0.5" value="4.5" class="saas-input">
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="newRoomH">Height (m):</label>
+                                            <input type="number" id="newRoomH" min="1" max="30" step="0.5" value="4.0" class="saas-input">
+                                        </div>
+                                    </div>
+                                    <div class="form-row-2">
+                                        <div class="form-field">
+                                            <label for="newRoomX">Origin X (m):</label>
+                                            <input type="number" id="newRoomX" min="0" max="60" step="0.5" value="0.0" class="saas-input">
+                                        </div>
+                                        <div class="form-field">
+                                            <label for="newRoomY">Origin Y (m):</label>
+                                            <input type="number" id="newRoomY" min="0" max="40" step="0.5" value="0.0" class="saas-input">
+                                        </div>
+                                    </div>
+                                    <button id="btnCreateRoom" class="btn btn-primary btn-block btn-sm">Add Room & Build Walls</button>
+                                </div>
+
+                                <ul class="room-manager-list" id="roomManagerList">
+                                    <!-- Populated dynamically via JS -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- DOCK 3: TRANSMITTER & RADIO HARDWARE -->
+                        <div class="dock-panel" id="dock-radio">
+                            <div class="panel-card">
+                                <div class="card-title-row">
+                                    <h4>Router RF Hardware</h4>
+                                    <span class="status-tag">Access Point</span>
+                                </div>
+
+                                <div class="form-field">
+                                    <div class="label-with-value">
+                                        <label for="sliderTxPower">Transmit Power (EIRP):</label>
+                                        <span class="field-val" id="valTxPower">20 dBm</span>
+                                    </div>
+                                    <input type="range" id="sliderTxPower" min="10" max="30" step="1" value="20" class="saas-range">
+                                    <span class="input-hint">20 dBm (100 mW) standard indoor Wi-Fi legal ceiling.</span>
+                                </div>
+
+                                <div class="form-field">
+                                    <label>Frequency Band:</label>
+                                    <div class="radio-tab-group">
+                                        <button class="radio-tab active" data-band="2.4" id="btnBand24">
+                                            <strong>2.4 GHz</strong>
+                                            <span>PL₀: 40 dB • High Penetration</span>
+                                        </button>
+                                        <button class="radio-tab" data-band="5.0" id="btnBand50">
+                                            <strong>5.0 GHz</strong>
+                                            <span>PL₀: 47 dB • Higher Speed</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="form-field">
+                                    <div class="label-with-value">
+                                        <label for="sliderPathLoss">Path Loss Exponent (n):</label>
+                                        <span class="field-val" id="valPathLoss">2.8</span>
+                                    </div>
+                                    <input type="range" id="sliderPathLoss" min="2.0" max="4.0" step="0.1" value="2.8" class="saas-range">
+                                    <span class="input-hint">2.0 = Free space, 2.8 = Residential drywall, 3.5+ = Dense concrete.</span>
+                                </div>
+                            </div>
+
+                            <div class="panel-card">
+                                <div class="card-title-row">
+                                    <h4>Router Position</h4>
+                                    <span class="status-tag">Real-World</span>
+                                </div>
+                                <p class="panel-hint">Drag the AP on the canvas or type exact coordinates.</p>
+
+                                <div class="form-row-2">
+                                    <div class="form-field">
+                                        <label for="numRouterX">X Coordinate (m):</label>
+                                        <input type="number" id="numRouterX" min="0.5" max="60" step="0.25" value="8.0" class="saas-input">
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="numRouterY">Y Coordinate (m):</label>
+                                        <input type="number" id="numRouterY" min="0.5" max="40" step="0.25" value="5.5" class="saas-input">
+                                    </div>
+                                </div>
+
+                                <button id="btnRecenterRouter" class="btn btn-secondary btn-block">Center Router on Floor Plan</button>
+                            </div>
+                        </div>
+
+                        <!-- DOCK 4: WALLS & BARRIERS -->
+                        <div class="dock-panel" id="dock-barriers">
+                            <div class="panel-card">
+                                <div class="card-title-row">
+                                    <h4>Drawing Tools</h4>
+                                    <span class="status-tag">Canvas</span>
+                                </div>
+
+                                <div class="tool-btn-grid">
+                                    <button class="tool-card active" data-tool="drag" id="toolSelectDrag">
+                                        <span class="tc-icon">🖐️</span>
+                                        <span class="tc-title">Move AP</span>
+                                        <span class="tc-sub">Drag router</span>
+                                    </button>
+                                    <button class="tool-card" data-tool="wall" id="toolSelectWall">
+                                        <span class="tc-icon">🧱</span>
+                                        <span class="tc-title">Draw Wall</span>
+                                        <span class="tc-sub">Click & drag</span>
+                                    </button>
+                                    <button class="tool-card" data-tool="door" id="toolSelectDoor">
+                                        <span class="tc-icon">🚪</span>
+                                        <span class="tc-title">Add Door</span>
+                                        <span class="tc-sub">3 dB wood door</span>
+                                    </button>
+                                    <button class="tool-card" data-tool="window" id="toolSelectWindow">
+                                        <span class="tc-icon">🪟</span>
+                                        <span class="tc-title">Add Window</span>
+                                        <span class="tc-sub">2.5 dB glass pane</span>
+                                    </button>
+                                </div>
+
+                                <div class="form-field" id="barrierMaterialWrapper">
+                                    <label for="selectMaterial">Wall Material Attenuation:</label>
+                                    <select id="selectMaterial" class="saas-select">
+                                        <option value="brick" selected>Standard Brick (8.0 dB Loss)</option>
+                                        <option value="concrete">Reinforced Concrete (14.0 dB Loss)</option>
+                                        <option value="drywall">Drywall Partition (3.0 dB Loss)</option>
+                                        <option value="wood">Interior Wood (4.0 dB Loss)</option>
+                                        <option value="glass">Glass Panel (2.5 dB Loss)</option>
+                                        <option value="metal">Metal Plate / Beam (20.0 dB Loss)</option>
+                                    </select>
+                                </div>
+
+                                <div class="btn-group-2">
+                                    <button id="btnUndoLastWall" class="btn btn-secondary">↩ Undo Wall</button>
+                                    <button id="btnClearWallsBtn" class="btn btn-danger">🗑 Clear All</button>
+                                </div>
+                            </div>
+
+                            <div class="panel-card">
+                                <div class="card-title-row">
+                                    <h4>Material Reference</h4>
+                                </div>
+                                <table class="saas-table">
+                                    <thead>
+                                        <tr><th>Material</th><th>Loss</th><th>Severity</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td>Glass Window</td><td class="mono">2.5 dB</td><td>Minimal</td></tr>
+                                        <tr><td>Drywall Plaster</td><td class="mono">3.0 dB</td><td>Low</td></tr>
+                                        <tr><td>Interior Wood</td><td class="mono">4.0 dB</td><td>Moderate</td></tr>
+                                        <tr><td>Standard Brick</td><td class="mono">8.0 dB</td><td>High</td></tr>
+                                        <tr><td>Reinforced Concrete</td><td class="mono">14.0 dB</td><td>Severe</td></tr>
+                                        <tr><td>Metal / Steel</td><td class="mono">20.0 dB</td><td>Critical</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </aside>
+
+                <!-- Center Interactive Canvas Studio -->
+                <div class="studio-canvas-area">
+                    <!-- Workspace Header Toolbar -->
+                    <div class="workspace-header">
+                        <div class="wh-left">
+                            <div class="mode-pill" id="activeModePill">
+                                <span class="mode-dot"></span>
+                                <span id="activeModeText">Tool: Move Router Mode</span>
+                            </div>
+                            <div class="dim-pill" id="activeDimPill">
+                                <span>Floor Scale: 16.0m × 11.0m (176.0 m²)</span>
+                            </div>
+                        </div>
+
+                        <div class="wh-right">
+                            <label class="saas-toggle" title="Snap to 0.5 meter grid while drawing">
+                                <input type="checkbox" id="toggleGridSnap" checked>
+                                <span>Snap 0.5m</span>
+                            </label>
+                            <label class="saas-toggle" title="Show or hide room names">
+                                <input type="checkbox" id="toggleRooms" checked>
+                                <span>Rooms</span>
+                            </label>
+                            <label class="saas-toggle" title="Show or hide walls">
+                                <input type="checkbox" id="toggleWalls" checked>
+                                <span>Walls</span>
+                            </label>
+                            <label class="saas-toggle" title="Show or hide signal heatmap">
+                                <input type="checkbox" id="toggleHeatmap" checked>
+                                <span>Heatmap</span>
+                            </label>
+
+                            <div class="toolbar-sep"></div>
+
+                            <!-- Heatmap Mode Selector -->
+                            <select id="selectHeatmapMode" class="saas-select-sm" title="Change heatmap rendering mode">
+                                <option value="gradient" selected>Continuous RF Field</option>
+                                <option value="tiers">3-Zone Tiers (Good/Weak/Dead)</option>
+                                <option value="deadzones">Dead Zones Spotlight Only</option>
+                            </select>
+
+                            <div class="toolbar-sep"></div>
+
+                            <!-- Zoom & Pan Controls -->
+                            <div class="canvas-zoom-group">
+                                <button class="zoom-btn" id="btnZoomOut" title="Zoom Out (-)">−</button>
+                                <button class="zoom-btn zoom-btn-val" id="btnZoomReset" title="Reset Zoom">100%</button>
+                                <button class="zoom-btn" id="btnZoomIn" title="Zoom In (+)">+</button>
+                                <button class="zoom-btn" id="btnFitCanvas" title="Fit to Screen">🔍</button>
+                            </div>
+
+                            <button class="ws-btn ws-btn-export" id="btnExportImage" title="Export floor plan & heatmap as high-res PNG">📷 PNG</button>
+                        </div>
+                    </div>
+
+                    <!-- Heatmap Gradient Legend Strip -->
+                    <div class="saas-legend-bar">
+                        <div class="legend-header-item">
+                            <span class="leg-title">Wi-Fi Signal Strength:</span>
+                        </div>
+                        <div class="legend-spectrum">
+                            <span class="leg-val val-exc">&ge; -50 dBm (Strong)</span>
+                            <div class="spectrum-bar"></div>
+                            <span class="leg-val val-dead">&lt; -85 dBm (Dead Zone)</span>
+                        </div>
+                        <div class="legend-pills">
+                            <span class="leg-badge badge-exc">Excellent (&ge; -50)</span>
+                            <span class="leg-badge badge-good">Good (-60)</span>
+                            <span class="leg-badge badge-fair">Fair (-67)</span>
+                            <span class="leg-badge badge-weak">Weak (-75)</span>
+                            <span class="leg-badge badge-vweak">Very Weak (-85)</span>
+                            <span class="leg-badge badge-dead">Dead Zone (&lt; -85)</span>
+                        </div>
+                    </div>
+
+                    <!-- Floor Plan Canvas Viewport -->
+                    <div class="canvas-viewport-container" id="canvasViewportContainer">
+                        <canvas id="mainFloorCanvas" width="1000" height="680"></canvas>
+                        
+                        <!-- Real-Time Cursor Inspector HUD -->
+                        <div class="saas-canvas-tooltip" id="saasTooltip" style="display: none;">
+                            <div class="tt-header">
+                                <span class="tt-coords" id="ttCoords">📍 X: 0.0m, Y: 0.0m</span>
+                                <span class="tt-badge" id="ttQualityBadge">Signal Quality</span>
+                            </div>
+                            <div class="tt-rssi-row">
+                                <span class="tt-rssi-val" id="ttRssi">-- dBm</span>
+                                <span class="tt-phy-speed" id="ttPhySpeed">Est. Speed: -- Mbps</span>
+                            </div>
+                            <div class="tt-meta-row">
+                                <span class="tt-distance" id="ttDistance">Dist: -- m</span>
+                                <span class="tt-barriers" id="ttBarriers">Obstructions: --</span>
+                            </div>
+                        </div>
+
+                        <!-- Canvas Scale Bar Overlay (Bottom Left) -->
+                        <div class="canvas-scale-bar" id="canvasScaleBar">
+                            <div class="scale-bar-line"></div>
+                            <span class="scale-bar-text" id="scaleBarText">2.0 meters</span>
+                        </div>
+
+                        <!-- Simulation Loading Spinner Overlay -->
+                        <div class="saas-canvas-loader" id="saasLoader" style="display: none;">
+                            <div class="radar-spinner"></div>
+                            <span class="loader-message" id="loaderMsg">Simulating Wi-Fi RF Propagation...</span>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Quick KPI Strip -->
+                    <div class="studio-kpi-bar">
+                        <div class="sk-item">
+                            <span class="sk-lbl">Good Coverage:</span>
+                            <span class="sk-val text-good" id="barGoodPct">--%</span>
+                            <span class="sk-sub">(&ge; -67 dBm)</span>
+                        </div>
+                        <div class="sk-sep"></div>
+                        <div class="sk-item">
+                            <span class="sk-lbl">Weak Signal:</span>
+                            <span class="sk-val text-weak" id="barWeakPct">--%</span>
+                            <span class="sk-sub">(-85 to -67 dBm)</span>
+                        </div>
+                        <div class="sk-sep"></div>
+                        <div class="sk-item">
+                            <span class="sk-lbl">Dead Zones:</span>
+                            <span class="sk-val text-dead" id="barDeadPct">--%</span>
+                            <span class="sk-sub">(&lt; -85 dBm)</span>
+                        </div>
+                        <div class="sk-sep"></div>
+                        <div class="sk-item">
+                            <span class="sk-lbl">Average RSSI:</span>
+                            <span class="sk-val" id="barAvgRssi">-- dBm</span>
+                        </div>
+                        <div class="sk-sep"></div>
+                        <div class="sk-item">
+                            <span class="sk-lbl">Grid Sampling:</span>
+                            <span class="sk-val mono" id="barGridCells">-- cells</span>
+                        </div>
+                        <div class="sk-sep"></div>
+                        <div class="sk-item">
+                            <button class="btn btn-sm btn-primary" id="btnStudioOptimize">⚡ Run Optimizer</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ===================================================================
+             VIEW 2: EXECUTIVE OVERVIEW & ROOM-BY-ROOM AUDIT
+             =================================================================== -->
+        <section class="app-view" id="view-overview">
+            <div class="view-content-container">
+                <div class="section-hero-header">
+                    <div>
+                        <h2>Executive Wi-Fi Coverage Audit</h2>
+                        <p class="section-hero-sub">Comprehensive spatial wireless audit for current floor plan and router placement.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <button class="btn btn-secondary" id="btnAuditBackToStudio">Back to Studio</button>
+                        <button class="btn btn-primary" id="btnAuditRunOptimizer">Run AI Placement Advisor</button>
+                    </div>
+                </div>
+
+                <!-- 4 Major KPI Cards -->
+                <div class="kpi-hero-grid">
+                    <div class="kpi-hero-card">
+                        <div class="kh-top">
+                            <span class="kh-title">Overall Network Health</span>
+                            <span class="status-tag tag-success" id="ovHealthTag">Healthy</span>
+                        </div>
+                        <div class="kh-big text-cyan" id="ovHealthScore">88/100</div>
+                        <div class="kh-bar-track">
+                            <div class="kh-bar-fill" id="ovHealthFill" style="width: 88%; background: var(--cyan);"></div>
+                        </div>
+                        <span class="kh-sub" id="ovHealthSub">Excellent overall propagation with minimal dead spots.</span>
+                    </div>
+
+                    <div class="kpi-hero-card">
+                        <div class="kh-top">
+                            <span class="kh-title">Good Coverage Area</span>
+                            <span class="kh-tier-pill text-good">&ge; -67 dBm</span>
+                        </div>
+                        <div class="kh-big text-good" id="ovGoodPct">--%</div>
+                        <div class="kh-bar-track">
+                            <div class="kh-bar-fill fill-good" id="ovGoodFill" style="width: 0%;"></div>
+                        </div>
+                        <span class="kh-sub">Ready for 4K video conferencing, VoIP, and gaming.</span>
+                    </div>
+
+                    <div class="kpi-hero-card">
+                        <div class="kh-top">
+                            <span class="kh-title">Dead Zone Risk</span>
+                            <span class="kh-tier-pill text-dead">&lt; -85 dBm</span>
+                        </div>
+                        <div class="kh-big text-dead" id="ovDeadPct">--%</div>
+                        <div class="kh-bar-track">
+                            <div class="kh-bar-fill fill-dead" id="ovDeadFill" style="width: 0%;"></div>
+                        </div>
+                        <span class="kh-sub">Area with signal dropouts and packet loss.</span>
+                    </div>
+
+                    <div class="kpi-hero-card">
+                        <div class="kh-top">
+                            <span class="kh-title">Floor Mean Signal</span>
+                            <span class="status-tag">Empirical LDPL</span>
+                        </div>
+                        <div class="kh-big" id="ovAvgRssi">-- dBm</div>
+                        <div class="kh-meta-row">
+                            <span>Max: <strong class="text-cyan mono" id="ovMaxRssi">-- dBm</strong></span>
+                            <span>Min: <strong class="text-dead mono" id="ovMinRssi">-- dBm</strong></span>
+                        </div>
+                        <span class="kh-sub" id="ovQualityLabel">Evaluating signal quality...</span>
+                    </div>
+                </div>
+
+                <!-- Room-by-Room Coverage Audit Table -->
+                <div class="content-card">
+                    <div class="card-title-row">
+                        <div>
+                            <h4>Room-by-Room Wireless Quality Breakdown</h4>
+                            <p class="panel-hint">Individual room signal analysis computed from line-of-sight ray tracing.</p>
+                        </div>
+                        <span class="status-tag" id="ovRoomCountTag">0 Rooms</span>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="saas-table saas-table-room" id="overviewRoomsTable">
+                            <thead>
+                                <tr>
+                                    <th>Room Name</th>
+                                    <th>Dimensions</th>
+                                    <th>Area (m²)</th>
+                                    <th>Average Signal</th>
+                                    <th>Good Coverage</th>
+                                    <th>Dead Zone</th>
+                                    <th>Grade</th>
+                                    <th>Status & Advice</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overviewRoomsTbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Architecture & Presets Gallery -->
+                <div class="content-card">
+                    <div class="card-title-row">
+                        <h4>Explore Architectural Templates</h4>
+                    </div>
+                    <div class="preset-gallery-grid">
+                        <div class="pg-card" data-preset="Studio">
+                            <div class="pg-badge">Compact</div>
+                            <h5>Studio Loft</h5>
+                            <p>10m × 7.5m (75 m²) • Open sleeping/living, bath, kitchenette.</p>
+                            <button class="btn btn-sm btn-secondary btn-block">Load Studio</button>
+                        </div>
+                        <div class="pg-card" data-preset="1BHK">
+                            <div class="pg-badge">Standard</div>
+                            <h5>1 BHK Modern</h5>
+                            <p>12m × 9m (108 m²) • Living, Master Bed, Kitchen, Bath.</p>
+                            <button class="btn btn-sm btn-secondary btn-block">Load 1 BHK</button>
+                        </div>
+                        <div class="pg-card" data-preset="2BHK">
+                            <div class="pg-badge">Popular</div>
+                            <h5>2 BHK Family</h5>
+                            <p>16m × 11m (176 m²) • 2 Beds, Living, Kitchen, 2 Baths.</p>
+                            <button class="btn btn-sm btn-secondary btn-block">Load 2 BHK</button>
+                        </div>
+                        <div class="pg-card" data-preset="3BHK">
+                            <div class="pg-badge">Spacious</div>
+                            <h5>3 BHK Residence</h5>
+                            <p>20m × 14m (280 m²) • 3 Beds, Living, Foyer, Kitchen, Deck.</p>
+                            <button class="btn btn-sm btn-secondary btn-block">Load 3 BHK</button>
+                        </div>
+                        <div class="pg-card" data-preset="4BHK">
+                            <div class="pg-badge">Luxury</div>
+                            <h5>4 BHK Luxury</h5>
+                            <p>24m × 16m (384 m²) • 4 Beds, Living, Office, Kitchen.</p>
+                            <button class="btn btn-sm btn-secondary btn-block">Load 4 BHK</button>
+                        </div>
+                        <div class="pg-card" data-preset="open_plan">
+                            <div class="pg-badge">Commercial</div>
+                            <h5>Open Studio / Office</h5>
+                            <p>18m × 12m (216 m²) • Open coworking floor, glass conference.</p>
+                            <button class="btn btn-sm btn-secondary btn-block">Load Open Plan</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ===================================================================
+             VIEW 3: SIGNAL ANALYTICS & HISTOGRAM
+             =================================================================== -->
+        <section class="app-view" id="view-analytics">
+            <div class="view-content-container">
+                <div class="section-hero-header">
+                    <div>
+                        <h2>Wi-Fi Signal & RF Spectrum Analytics</h2>
+                        <p class="section-hero-sub">Distribution of RF energy and signal tiers across the evaluated physical floor space.</p>
+                    </div>
+                    <button class="btn btn-secondary" id="btnAnalyticsBackToStudio">Back to Studio</button>
+                </div>
+
+                <div class="grid-2col">
+                    <!-- 6-Tier Signal Quality Histogram -->
+                    <div class="content-card">
+                        <div class="card-title-row">
+                            <h4>Signal Quality Distribution (6-Tier Benchmark)</h4>
+                            <span class="status-tag">Non-Overlapping</span>
+                        </div>
+                        <p class="panel-hint">Strictly partitions 100% of the simulated floor area into industry wireless standards.</p>
+
+                        <div class="histogram-chart" id="analyticsHistogram">
+                            <!-- Populated with SVG/CSS bars -->
+                        </div>
+
+                        <div class="three-tier-summary">
+                            <div class="tts-box">
+                                <span class="tts-lbl">Good Coverage (&ge; -67 dBm)</span>
+                                <span class="tts-val text-good" id="ttsGood">--%</span>
+                            </div>
+                            <div class="tts-box">
+                                <span class="tts-lbl">Weak Signal (-85 to -67 dBm)</span>
+                                <span class="tts-val text-weak" id="ttsWeak">--%</span>
+                            </div>
+                            <div class="tts-box">
+                                <span class="tts-lbl">Dead Zones (&lt; -85 dBm)</span>
+                                <span class="tts-val text-dead" id="ttsDead">--%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spatial Statistics & Propagation Parameters -->
+                    <div class="content-card">
+                        <div class="card-title-row">
+                            <h4>Spatial RF Propagation Metrics</h4>
+                            <span class="status-tag">Matrix Analytics</span>
+                        </div>
+
+                        <div class="stat-kv-list">
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Floor Plan Gross Area:</span>
+                                <span class="kv-val mono" id="statGrossArea">-- m²</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Grid Sampling Resolution:</span>
+                                <span class="kv-val mono" id="statResolution">0.50 m</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Total Evaluated Coordinate Cells:</span>
+                                <span class="kv-val mono" id="statTotalCells">-- cells</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Peak Transmitter Proximity Signal:</span>
+                                <span class="kv-val mono text-cyan" id="statMaxSignal">-- dBm</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Weakest Peripheral Floor Signal:</span>
+                                <span class="kv-val mono text-dead" id="statMinSignal">-- dBm</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Dynamic Signal Range (Δ):</span>
+                                <span class="kv-val mono" id="statDynRange">-- dB</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Active Transmitter EIRP:</span>
+                                <span class="kv-val mono" id="statTxEirp">20 dBm (100 mW)</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Frequency Band & Reference Loss (PL₀):</span>
+                                <span class="kv-val mono" id="statPl0">2.4 GHz (40.0 dB)</span>
+                            </div>
+                            <div class="stat-kv-row">
+                                <span class="kv-name">Environment Path Loss Exponent (n):</span>
+                                <span class="kv-val mono" id="statExponent">2.8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signal Standards Explanation Table -->
+                <div class="content-card">
+                    <div class="card-title-row">
+                        <h4>Industry Wi-Fi RSSI Benchmark Guidelines</h4>
+                    </div>
+                    <table class="saas-table">
+                        <thead>
+                            <tr>
+                                <th>Tier</th>
+                                <th>RSSI Range</th>
+                                <th>Expected Throughput</th>
+                                <th>Optimal Applications</th>
+                                <th>Reliability Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge-exc">Excellent</span></td>
+                                <td class="mono">&ge; -50 dBm</td>
+                                <td>500 - 1200+ Mbps</td>
+                                <td>Gigabit file transfers, multiple 8K streams, VR gaming</td>
+                                <td class="text-good">Maximum (100%)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-good">Good</span></td>
+                                <td class="mono">-60 to -50 dBm</td>
+                                <td>250 - 600 Mbps</td>
+                                <td>4K Ultra HD streaming, cloud gaming, high-res video meetings</td>
+                                <td class="text-good">High (95%)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-fair">Fair</span></td>
+                                <td class="mono">-67 to -60 dBm</td>
+                                <td>100 - 300 Mbps</td>
+                                <td>1080p video calling, VoIP, web browsing, smart home IoT</td>
+                                <td class="text-good">Standard Voice Quality</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-weak">Weak</span></td>
+                                <td class="mono">-75 to -67 dBm</td>
+                                <td>25 - 100 Mbps</td>
+                                <td>Casual browsing, email; occasional packet retries under load</td>
+                                <td class="text-weak">Degraded</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-vweak">Very Weak</span></td>
+                                <td class="mono">-85 to -75 dBm</td>
+                                <td>1 - 25 Mbps</td>
+                                <td>High packet retransmission, high latency, buffering</td>
+                                <td class="text-dead">Unstable</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge-dead">Dead Zone</span></td>
+                                <td class="mono">&lt; -85 dBm</td>
+                                <td>0 Mbps</td>
+                                <td>Disconnected; cannot associate or maintain TCP handshake</td>
+                                <td class="text-dead">Zero Connectivity</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ===================================================================
+             VIEW 4: ROUTER PLACEMENT ADVISOR (OPTIMIZER)
+             =================================================================== -->
+        <section class="app-view" id="view-optimizer">
+            <div class="view-content-container">
+                <div class="section-hero-header">
+                    <div>
+                        <h2>Intelligent Router Placement Advisor</h2>
+                        <p class="section-hero-sub">Spatial multi-objective optimization evaluates thousands of coordinate candidates to eliminate dead zones and maximize strong Wi-Fi coverage.</p>
+                    </div>
+                    <button class="btn btn-primary" id="btnRunOptimizerMain">⚡ Evaluate & Optimize Placement</button>
+                </div>
+
+                <!-- Optimization Results & Comparison Section -->
+                <div class="opt-results-container" id="optResultsContainer">
+                    
+                    <!-- Top Recommendation Banner -->
+                    <div class="recommendation-banner" id="optBanner">
+                        <div class="rb-icon">🎯</div>
+                        <div class="rb-content">
+                            <h3 id="optBannerTitle">Optimization Ready</h3>
+                            <p id="optBannerDesc">Click "Evaluate & Optimize Placement" above to search for the best router position for your current floor plan.</p>
+                        </div>
+                        <button class="btn btn-accent" id="btnApplyOptimizedPos" style="display: none;">
+                            ✓ Move Router to Optimal Position
+                        </button>
+                    </div>
+
+                    <!-- Side-by-Side Comparison Grid -->
+                    <div class="comparison-grid" id="optComparisonGrid" style="display: none;">
+                        
+                        <!-- Current Placement Card -->
+                        <div class="comp-card">
+                            <div class="cc-header">
+                                <span class="cc-pill">Current Placement</span>
+                                <h4 id="compCurrentPos">AP at (8.0m, 5.5m)</h4>
+                            </div>
+                            <div class="cc-kpi-stack">
+                                <div class="cc-item">
+                                    <span class="cc-lbl">Good Coverage:</span>
+                                    <span class="cc-val text-good" id="compCurGood">--%</span>
+                                </div>
+                                <div class="cc-item">
+                                    <span class="cc-lbl">Dead Zones:</span>
+                                    <span class="cc-val text-dead" id="compCurDead">--%</span>
+                                </div>
+                                <div class="cc-item">
+                                    <span class="cc-lbl">Average Floor Signal:</span>
+                                    <span class="cc-val" id="compCurAvg">-- dBm</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Improvement Gain Badges (Center) -->
+                        <div class="comp-gain-center">
+                            <div class="gain-badge-card" id="gainGoodBadge">
+                                <span class="gb-title">Good Coverage</span>
+                                <span class="gb-val" id="gainGoodVal">+0.0%</span>
+                                <span class="gb-sub">Net Gain</span>
+                            </div>
+                            <div class="gain-badge-card" id="gainDeadBadge">
+                                <span class="gb-title">Dead Zones</span>
+                                <span class="gb-val" id="gainDeadVal">-0.0%</span>
+                                <span class="gb-sub">Reduction</span>
+                            </div>
+                            <div class="gain-badge-card" id="gainRssiBadge">
+                                <span class="gb-title">Mean RSSI</span>
+                                <span class="gb-val" id="gainRssiVal">+0.0 dB</span>
+                                <span class="gb-sub">Signal Boost</span>
+                            </div>
+                        </div>
+
+                        <!-- Recommended Placement Card -->
+                        <div class="comp-card comp-card-rec">
+                            <div class="cc-header">
+                                <span class="cc-pill tag-success">Recommended Placement</span>
+                                <h4 id="compRecPos">AP at (--m, --m)</h4>
+                            </div>
+                            <div class="cc-kpi-stack">
+                                <div class="cc-item">
+                                    <span class="cc-lbl">Projected Good:</span>
+                                    <span class="cc-val text-good" id="compRecGood">--%</span>
+                                </div>
+                                <div class="cc-item">
+                                    <span class="cc-lbl">Projected Dead:</span>
+                                    <span class="cc-val text-dead" id="compRecDead">--%</span>
+                                </div>
+                                <div class="cc-item">
+                                    <span class="cc-lbl">Projected Average:</span>
+                                    <span class="cc-val text-cyan" id="compRecAvg">-- dBm</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Optimization Methodology Card -->
+                    <div class="content-card">
+                        <div class="card-title-row">
+                            <h4>Optimization Objective Function & Heuristic</h4>
+                            <span class="status-tag">Multi-Objective Grid Search</span>
+                        </div>
+                        <p class="panel-hint">
+                            The advisor searches interior coordinate candidates at discrete grid intervals. For each candidate coordinate \((x_c, y_c)\), it simulates the full ray-traced path loss across the floor plan and evaluates the multi-objective fitness score:
+                        </p>
+                        <div class="formula-box">
+                            Score(x, y) = 1.0 × Good_Coverage_Percent - 2.5 × Dead_Zone_Percent + 0.1 × Average_RSSI_dBm
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            The heavy penalty (\(-2.5\times\)) against dead zones ensures the algorithm favors placements that penetrate dense barrier clusters (such as reinforced concrete master bedroom walls and kitchen tiling) while maintaining broad line-of-sight coverage for common areas.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ===================================================================
+             VIEW 5: PROJECTS & EXPORT
+             =================================================================== -->
+        <section class="app-view" id="view-projects">
+            <div class="view-content-container">
+                <div class="section-hero-header">
+                    <div>
+                        <h2>Project Persistence & Export Workstation</h2>
+                        <p class="section-hero-sub">Save floor plans to browser storage, export high-resolution PNG blueprints, and download/upload project JSON files.</p>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <!-- Save / Load Local Projects -->
+                    <div class="content-card">
+                        <div class="card-title-row">
+                            <h4>Save Current Project</h4>
+                            <span class="status-tag">Local Storage</span>
+                        </div>
+                        <p class="panel-hint">Store this floor plan configuration in your browser for quick restoration.</p>
+
+                        <div class="form-row-btn">
+                            <input type="text" id="saveProjectName" placeholder="Project Name (e.g. My Apartment V2)" class="saas-input">
+                            <button class="btn btn-primary" id="btnSaveCurrentProject">💾 Save Project</button>
+                        </div>
+
+                        <div class="saved-projects-list-wrapper">
+                            <h5>Saved Projects</h5>
+                            <ul class="saved-projects-list" id="savedProjectsList">
+                                <!-- Populated dynamically -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Export & Import Files -->
+                    <div class="content-card">
+                        <div class="card-title-row">
+                            <h4>File Export & Import</h4>
+                            <span class="status-tag">JSON & PNG</span>
+                        </div>
+                        
+                        <div class="export-card-grid">
+                            <div class="exp-box">
+                                <div class="exp-icon">🖼️</div>
+                                <h6>Export Blueprint PNG</h6>
+                                <p>High-resolution image with heatmap, floor plan, scale bar, and RF stats overlay.</p>
+                                <button class="btn btn-secondary btn-block" id="btnExportPngAlt">Download PNG</button>
+                            </div>
+
+                            <div class="exp-box">
+                                <div class="exp-icon">📦</div>
+                                <h6>Export Project JSON</h6>
+                                <p>Download portable JSON file containing all walls, rooms, router settings, and dimensions.</p>
+                                <button class="btn btn-secondary btn-block" id="btnExportJson">Download JSON</button>
+                            </div>
+                        </div>
+
+                        <div class="import-section">
+                            <h5>Import Project JSON</h5>
+                            <div class="file-drop-zone" id="fileDropZone">
+                                <span>Drag and drop a project <code>.json</code> file here, or click to browse</span>
+                                <input type="file" id="importJsonInput" accept=".json" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- ===================================================================
+             VIEW 6: RF THEORY & DOCUMENTATION
+             =================================================================== -->
+        <section class="app-view" id="view-docs">
+            <div class="view-content-container">
+                <div class="section-hero-header">
+                    <div>
+                        <h2>Wireless RF Physics & Simulation Model</h2>
+                        <p class="section-hero-sub">Scientific basis, empirical attenuation tables, and electromagnetic path-loss formulations.</p>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-title-row">
+                        <h4>1. Log-Distance Path Loss (LDPL) Model</h4>
+                        <span class="status-tag">IEEE Standard Formulation</span>
+                    </div>
+                    <p class="panel-hint">
+                        In indoor environments, electromagnetic radio waves experience distance decay combined with shadowing and barrier absorption. The received signal strength indication (RSSI) at distance \(d\) from the transmitter is modeled as:
+                    </p>
+                    <div class="formula-box">
+                        RSSI(d) = P<sub>tx</sub> - [PL₀ + 10 · n · log₁₀(d / d₀)] - Σ Wall_Attenuation - Σ Obstacle_Attenuation
+                    </div>
+                    
+                    <div class="theory-param-grid">
+                        <div class="tp-item">
+                            <strong>P<sub>tx</sub> (Transmit Power):</strong>
+                            <span>EIRP of access point in dBm. Default is 20 dBm (100 mW).</span>
+                        </div>
+                        <div class="tp-item">
+                            <strong>PL₀ (Reference Loss at 1m):</strong>
+                            <span>Free-space path loss at d₀ = 1.0m. 40.0 dB for 2.4 GHz; 47.0 dB for 5.0 GHz.</span>
+                        </div>
+                        <div class="tp-item">
+                            <strong>n (Path Loss Exponent):</strong>
+                            <span>Rate of signal decay. 2.0 = free space, 2.5 - 3.5 = residential indoor, 4.0+ = industrial.</span>
+                        </div>
+                        <div class="tp-item">
+                            <strong>Σ Wall & Barrier Losses:</strong>
+                            <span>Accumulated transmission loss (dB) calculated via 2D ray-casting intersection with physical walls.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="content-card">
+                        <div class="card-title-row">
+                            <h4>2. Empirical Material Attenuation</h4>
+                            <span class="status-tag">2.4 GHz Standards</span>
+                        </div>
+                        <table class="saas-table">
+                            <thead>
+                                <tr><th>Material</th><th>Loss (dB)</th><th>RF Impact</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Glass Window</td><td class="mono">2.5 dB</td><td>Minimal absorption</td></tr>
+                                <tr><td>Interior Wood / Door</td><td class="mono">3.0 - 4.0 dB</td><td>Moderate reflection</td></tr>
+                                <tr><td>Drywall / Sheetrock</td><td class="mono">3.0 dB</td><td>Light partition</td></tr>
+                                <tr><td>Standard Red Brick</td><td class="mono">8.0 dB</td><td>Significant attenuation</td></tr>
+                                <tr><td>Reinforced Concrete</td><td class="mono">14.0 dB</td><td>Severe obstacle</td></tr>
+                                <tr><td>Metal Sheet / Appliances</td><td class="mono">12.0 - 20.0 dB</td><td>Critical reflector</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-title-row">
+                            <h4>3. 2.4 GHz vs 5.0 GHz Comparison</h4>
+                            <span class="status-tag">Wave Physics</span>
+                        </div>
+                        <p class="panel-hint">
+                            Higher frequencies have shorter wavelengths (\(\lambda = c / f\)), resulting in higher initial reference path loss and greater barrier absorption:
+                        </p>
+                        <table class="saas-table">
+                            <thead>
+                                <tr><th>Metric</th><th>2.4 GHz Band</th><th>5.0 GHz Band</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Wavelength (\(\lambda\))</td><td class="mono">~12.5 cm</td><td class="mono">~6.0 cm</td></tr>
+                                <tr><td>Free-space loss at 1m (PL₀)</td><td class="mono">40.0 dB</td><td class="mono">47.0 dB (+7 dB higher)</td></tr>
+                                <tr><td>Wall Penetration</td><td>High (covers multiple rooms)</td><td>Lower (attenuates rapidly)</td></tr>
+                                <tr><td>Channel Bandwidth</td><td>20 MHz channels (crowded)</td><td>20/40/80/160 MHz (fast)</td></tr>
+                                <tr><td>Maximum Throughput</td><td>Up to ~300 Mbps (Wi-Fi 4/6)</td><td>Up to ~1200+ Mbps</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-title-row">
+                        <h4>College Project & Research Disclaimer</h4>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;">
+                        This system calculates theoretical RF propagation using established empirical log-distance formulas and 2D ray-casting vector math. It simulates ideal dipole antenna radiation and does not account for multi-path Rayleigh/Rician fading, atmospheric humidity, or physical multipath beamforming reflection. It provides an engineering planning guideline for residential router installation.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Notification Toast Stack -->
+    <div class="toast-stack" id="toastStack"></div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
